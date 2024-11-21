@@ -3,6 +3,8 @@ from port_read import read_in_serial
 from port_write import write_in_serial
 from checksum import checksum
 import logging
+from  win_main import *
+import threading
 
 logger = logging.getLogger(__name__)
 FORMAT = '%(levelname)s %(asctime)s %(name)s %(message)s'
@@ -10,8 +12,16 @@ logging.basicConfig(level=logging.INFO, filemode='a',\
                      filename= 'logs/logs_port.log',\
                      encoding= 'utf-8', format= FORMAT)
 
-ser = open_port()
-command = checksum('!AA')
-write_in_serial(ser, 0x23)
-read_in_serial(ser)
+
+
+# if __name__ == '__main__':
+
+#     window_thread = threading.Thread(target=window_com)
+#     window_thread.start()
+    
+
+    # ser = open_port()
+    # command = checksum('!AA')
+    # write_in_serial(ser, 0x23)
+    # read_in_serial(ser)
 

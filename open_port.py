@@ -9,30 +9,31 @@ logger = logging.getLogger(__name__)
 #                      encoding= 'utf-8', format= FORMAT)
 
 
-def open_port():
+def open_port(com: str, baud:int, time_out:float):
     '''
     Получает данные из файла конфига и открывает порт, возвращая объект соединения
 
     '''
-    
-
-    with open('config\conf.ini', 'r') as config:
-        com = config.readline().strip()
-        baud = config.readline().strip()
-        logger.info(f'Получил данные конфига {com= } и {baud= }')
+    print('Открываю порт')
+    # with open('config\conf.ini', 'r') as config:
+    #     com = config.readline().strip()
+    #     baud = config.readline().strip()
+    #     logger.info(f'Получил данные конфига {com= } и {baud= }')
 
     try:
-        ser = serial.Serial(port= com, baudrate= baud)
+        # ser = serial.Serial(port= com, baudrate= baud)
+        ser = serial.Serial(port= com, baudrate= baud, timeout= time_out)
     except Exception:
-        logger.critical(f'Не могу подключиться к {com= } и {baud= }, пытаюсь снова ...')
+        logger.critical(f'Не могу подключиться к {com= } на скорости {baud= } c  {time_out= }, пытаюсь снова ...')
         time.sleep(2)
-        open_port()
+        open_port(com, baud, time_out)
 
     if not ser.is_open:
-        ser = serial.Serial(port= com, baudrate= baud)
+        # ser = serial.Serial(port= com, baudrate= baud)
+        ser = serial.Serial(port= com, baudrate= baud, timeout= time_out)
         time.sleep(2)
-        logger.critical(f'Не могу подключиться к {com= } и {baud= }, пытаюсь снова ...')
-    logger.info(f'Установил подключение к {com= } и {baud= }')
+        logger.critical(f'Не могу подключиться к {com= } на скорости {baud= } c  {time_out= }, пытаюсь снова ...')
+    logger.info(f'Установил подключение к {com= } на скорости {baud= } c  {time_out= }')
     return ser
 
 
