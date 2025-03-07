@@ -9,6 +9,8 @@ from checksum import checksum
 import logging
 from serial.tools import list_ports
 import serial
+import time
+import _thread
 
 
 logger = logging.getLogger(__name__)
@@ -32,7 +34,14 @@ class MyWin(QtWidgets.QMainWindow):
         self.setWindowTitle('COM Connector')
         self.add_item()
         self.ui.pushButton.clicked.connect(self.get_combobox)
+    
+    @pyqtSlot()
+    def update_text_browzer(self):
         
+        #self.ui.consoleBrowser.clear()
+        self.ui.consoleBrowser.setText(f'Data is --- {self.classport.read_in_serial()}')#.decode()}')
+        QtCore.QTimer.singleShot(100, self.update_text_browzer)
+
         
     def add_item(self):
         self.ui.portBox.clear()
@@ -44,19 +53,37 @@ class MyWin(QtWidgets.QMainWindow):
 
 
         global port, speed, time_out, port_thread
-
+        
         port = self.ui.portBox.currentText()
         speed = self.ui.speedBox_2.currentText()
         time_out =  self.ui.comboBox_3.currentText()
         self.ui.consoleBrowser.clear()
-        self.ui.consoleBrowser.setText(f'{port=} {speed= } {time_out=}')
+
+        try:
+            connect = self.classport.ser.close()
+            time.sleep(0.2)
+            connect = self.classport.open_port(port, int(speed), float(time_out))
+        except Exception:
+            time.sleep(0.2)
+            connect = self.classport.open_port(port, int(speed), float(time_out))
+        try:
+            QtCore.QTimer.stop()
+        except Exception:
+            pass
+        self.ui.consoleBrowser.setText(f'Connection is {connect}')
+        # time.sleep(3)
+        if connect:
+            # QtCore.QTimer.singleShot(0, self.update_text_browzer)
+            self.update_text_browzer()
+            
         
+    # def thread_for_browzer(self):
+    #     if self.classport.ser.is_open:
+    #         _thread.start_new_thread(self.update_text_browzer, ())
+
 
     
-        
-
-
-
+    
 
 class Port():
 
@@ -111,27 +138,11 @@ class Port():
         logger.info('получаем данные из COM')
         return self.ser.readline()
 
+   
 
 
-
-
-
-
-
-
-
-
-
-
-
-def window_com():
+if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     myapp = MyWin()
     myapp.show()
     sys.exit(app.exec_())
-
-
-
-if __name__ == '__main__':
-
-    window_com()
